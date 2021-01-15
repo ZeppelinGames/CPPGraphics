@@ -84,12 +84,75 @@ double clockToMilliseconds(clock_t ticks) {
 	return (ticks / (double)CLOCKS_PER_SEC) * 1000.0;
 }
 
+void LineTest() {
+	//Normal Line
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), 0xFFFFFF); //Horizontal
+	DrawLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), 0xFFFFFF); //Vertical
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), 0xFFFFFF); //Diagonal (upward)
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), 0xFFFFFF); //Diagonal (downward)
+
+	//Thick line (thickness 5)
+	DrawThickLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), 5, 0xFFFFFF); //Horizontal 
+	DrawThickLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), 5, 0xFFFFFF); //Vertical
+	DrawThickLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 3),5, 0xFFFFFF); //Diagonal (upward)
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 2), 0xFFFFFF); //Diagonal (downward)
+}
+
+float angle = 0;
+void RectTest() {
+	//Normal Rectangle
+	DrawRect(Vector2((render_state.width / 4) * 2, halfHeight), Vector2(100, 100), 0xFFFFFF);
+
+	//Rotated Rectangle
+	DrawRotatedRect(Vector2((render_state.width / 4) * 3, halfHeight), Vector2(100, 100), angle, 0xFFFFFF);
+
+	angle += 1.0f;
+}
+
+void CircleTest() {
+	//Normal circle
+	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, 0xFFFFFF);
+	//Thick circle
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, 5, 0xFFFFFF);
+	//Filled circle
+	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, true, 0xFFFFFFF);
+}
+
+void PolyTest() {
+	DrawPoly(
+		{
+			Vector2(500,900),
+			Vector2(50,75),
+			Vector2(200,100),
+			Vector2(400,800),
+			Vector2(500,300)
+		}, 0xFFFFFFF
+	);
+
+	DrawPoly(
+		{
+			Vector2(1200,200),
+			Vector2(1500,400),
+			Vector2(1700,800),
+			Vector2(1400,700)
+		},true,0xFFFFFF
+	);
+
+	DrawThickPoly(
+		{
+			Vector2(800,600),
+			Vector2(900,700),
+			Vector2(600,200),
+			Vector2(1000,300)
+		},10,0xFFFFFF
+	);
+}
+
 clock_t deltaTime = 0;
 unsigned int frames = 0;
 double  frameRate = 30;
 double  averageFrameTimeMilliseconds = 33.333;
 std::wstring conv = L"0";
-
 
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	//Create Window Class
@@ -113,8 +176,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	//Get monitor size
 	RECT window_rect(monitor_info.rcMonitor);
 
-	float angle = 0;
-
 	while (running) {
 		clock_t beginFrame = clock();
 
@@ -128,24 +189,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		//Simulate
 		ClearScreen(0x000000);
 
-		//RenderBackground();
-		
-		DrawRect(Vector2(10, 200), Vector2(100, 100), 0xFFFFFF);
-
-		DrawRotatedRect(Vector2(700, 25), Vector2(100, 100), angle, 0xFFFFFF);
-		angle += 1.0f;
-
-		//DrawLine(Vector2(200, 300), Vector2(200, 600), 0xFFFFFF);
-		//DrawLine(Vector2(200, 600), Vector2(600, 600), 0xFFFFFF);
-		//DrawLine(Vector2(-100, 600), Vector2(900, 200), 0xFFFFFF);
-
-		Point(Vector2(halfWidth, halfHeight), 0xFFFFFF);
-
-		DrawThickLine(Vector2(1000, 500), Vector2(800, 700), 100, 0xFFFFFF);
-
-		//DrawCircle(Vector2(800, 800), 300, 0xFFFFFF);
-		//DrawCircle(Vector2(900, 600), 100, 5, 0xFFFFFF);
-		//DrawCircle(Vector2(700, 600), 100, true, 0xFFFFFFF); 
+		//Run Tests
+		//LineTest();
+		//RectTest();
+		//CircleTest();
+		PolyTest();
 
 		//Render 
 		StretchDIBits(hdc, 0, 0, render_state.width, render_state.height, 0, 0, render_state.width, render_state.height, render_state.memory, &render_state.bitmap_info, DIB_RGB_COLORS, SRCCOPY);

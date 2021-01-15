@@ -14,5 +14,7 @@ public:
 
 	static float Distance(Vector2, Vector2);
 	static Vector2 RotatePoint(Vector2, Vector2, float);
+
+	
 };
 

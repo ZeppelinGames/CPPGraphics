@@ -1,4 +1,5 @@
 #include <math.h>
+#include <list>
 
 void RenderBackground() {
 	unsigned int* pixel = (unsigned int*)render_state.memory;
@@ -66,7 +67,7 @@ void DrawLine(Vector2 p1, Vector2 p2, unsigned int color) {
 		int from = (x0 <= x1) ? x0 : x1;
 		int to = (x0 < x1) ? x1 : x0;
 
-		for (int x = from; x < to; x++) {
+		for (float x = from; x < to; x+=0.1f) {
 			float y = y1 + dy * (x - x1) / dx;
 
 			int drawX = x;
@@ -116,39 +117,26 @@ void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
 
 		int from = (x0 <= x1) ? x0 : x1;
 		int to = (x0 < x1) ? x1 : x0;
-		
 
-		//Draw boxed
-		DrawLine(p1, p2, color);
-		
-		//get side points
+		DrawLine(Vector2(x0, y0), Vector2(x1, y1), color);
 
-		//find angle between points
-		//find hyp, sine rule, find top angle, minus 180 from top
+		int m = (dy/dx);
+		int c = (y1/m)-x1;
 
-		float hyp = sqrt(pow(dx, 2) + pow(dy, 2));
-		float angle = asin((sin(90) / hyp) * dx);
-		float adjAngle = abs(angle - 90);
-		Vector2 topUp = Vector2(cos(adjAngle) *thickness, sin(adjAngle) * thickness);
-		DrawLine(p1, topUp + p1,color);
-		DrawLine(p2, topUp + p2, color);
+		for (int n = -(thickness / 2); n < thickness / 2; n++) {
+			DrawLine()
+		}
 
-		adjAngle = abs(angle + 90);
-		Vector2 topDown = Vector2(cos(adjAngle) * thickness, sin(adjAngle) * thickness);
-		DrawLine(p1, topDown + p1, color);
-		DrawLine(p2, topDown + p2, color);
-
-		/*for (int x = from; x < to; x++) {
+		/*for (int x = from; x < to; x+=1) {
 			int y = y1 + dy * (x - x1) / dx;
 
-			unsigned int* pixel = (unsigned int*)render_state.memory + (x+thickness)+(y+thickness)*render_state.width;
+			unsigned int* pixel = (unsigned int*)render_state.memory + ((int)(x+(thickness/2)))+((y+(thickness/2)))*render_state.width;
 			for (float c = -thickness; c < thickness; c++) {
 				*pixel++ = color;
 			}
 		}*/
 	}
 }
-
 
 void DrawRect(Vector2 position, Vector2 size, unsigned int color) {
 	int x0 = Mathf::Clamp(position.x - size.x, 1, render_state.width-1);
@@ -204,8 +192,43 @@ void DrawRotatedRect(Vector2 position, Vector2 size, float rotation, unsigned in
 	DrawLine(newBL, newTL, color);
 }
 
+void DrawPoly(std::list<Vector2> points, unsigned int color) {
+	Vector2 prevPoint = points.front();
+	for (Vector2 p : points) {
+		DrawLine(prevPoint, p, color);
+		prevPoint = p;
+	}
+}
+
+void DrawPoly(std::list<Vector2> points,bool connect, unsigned int color) {
+	Vector2 prevPoint = points.front();
+	for (Vector2 p : points) {
+		DrawLine(prevPoint, p, color);
+		prevPoint = p;
+	}
+	DrawLine(points.front(), points.back(),color);
+}
+
+void DrawThickPoly(std::list<Vector2> points,float thickness, unsigned int color) {
+	Vector2 prevPoint = points.front();
+	for (Vector2 p : points) {
+		DrawThickLine(prevPoint, p,thickness, color);
+		prevPoint = p;
+	}
+}
+
+void DrawThickPoly(std::list<Vector2> points,float thickness, bool connect, unsigned int color) {
+	Vector2 prevPoint = points.front();
+	for (Vector2 p : points) {
+		DrawThickLine(prevPoint, p,thickness, color);
+		prevPoint = p;
+	}
+	DrawThickLine(points.front(), points.back(),thickness, color);
+}
+
+
 void DrawCircle(Vector2 position, float radius, bool filled, unsigned int color) {
-	Vector2 previousPoint = Vector2(cos(1) * radius, sin(1) * radius);
+	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 	
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
@@ -223,7 +246,7 @@ void DrawCircle(Vector2 position, float radius, bool filled, unsigned int color)
 }
 
 void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, unsigned int color) {
-	Vector2 previousPoint = Vector2(cos(1) * radius, sin(1) * radius);
+	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
@@ -241,7 +264,7 @@ void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, uns
 }
 
 void DrawCircle(Vector2 position, float radius, int edgeRadius, unsigned int color) {
-	Vector2 previousPoint = Vector2(cos(1) * radius, sin(1) * radius);
+	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
@@ -256,7 +279,7 @@ void DrawCircle(Vector2 position, float radius, int edgeRadius, unsigned int col
 }
 
 void DrawCircle(Vector2 position, float radius, unsigned int color) {
-	Vector2 previousPoint = Vector2(cos(0) * radius, sin(0) * radius);
+	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
