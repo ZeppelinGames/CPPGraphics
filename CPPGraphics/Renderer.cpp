@@ -3,239 +3,222 @@
 #include <iostream>
 #include "Color.h"
 
-void RenderBackground() {
-	unsigned int* pixel = (unsigned int*)render_state.memory;
-	for (int y = 0; y < render_state.height; y++) {
-		for (int x = 0; x < render_state.width; x++) {
-			*pixel++ = x * y;
-		}
-	}
-}
-
-void ClearScreen(unsigned int col) {
-	unsigned int* pixel = (unsigned int*)render_state.memory;
-	for (int y = 0; y < render_state.height; y++) {
-		for (int x = 0; x < render_state.width; x++) {
-			*pixel++ = col;
-		}
-	}
-}
-
 Color GetColor(Vector2 pos) {
 	unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
 	return Color::UINTToColor(*pixel);
 }
 
-void Point(Vector2 pos, Color color) {
-	unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
+void Plot(Vector2 pos, Color color) {
+	if (Bounds::pointInBounds(pos, render_state.screenBounds)) {
+		unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
 
-	Color bgColor = GetColor(pos);
-	Color alphaCol = (color + bgColor) * color.alpha;
+		Color bgColor = GetColor(pos);
+		color.alpha = 255;
+		Color alphaCol = (color + bgColor) * color.alpha;
 
-	unsigned int alphaColor = Color::ColorToUINT(alphaCol);
-	*pixel++ = alphaColor;
+		unsigned int alphaColor = Color::ColorToUINT(alphaCol);
+		*pixel++ = alphaColor;
+	}
 }
 
-void DrawLine(Vector2 p1, Vector2 p2, Color color, bool antialias = false) {
-	int x0 = p1.x;
-	int x1 = p2.x;
+void ClearScreen(Color col) {
+	unsigned int uintCol = Color::ColorToUINT(col);
+	unsigned int* pixel = (unsigned int*)render_state.memory;
 
-	int y0 = p1.y;
-	int y1 = p2.y;
-
-	if (x0 == x1) {
-		//Straight up (no gradient)
-		int from = (y0 <= y1) ? y0 : y1;
-		int to = (y0 < y1) ? y1 : y0;
-
-		for (int y = from; y < to; y++) {
-
-			int drawX = x0;
-			int drawY = y;
-			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				Point(Vector2(drawX, drawY), color);
-			}
+	for (int y = 0; y < render_state.height; y++) {
+		for (int x = 0; x < render_state.width; x++) {
+			*pixel++ = uintCol;
 		}
 	}
-	else if (y0 == y1) {
-		//Horizontal line (m=0)
-		int from = (x0 <= x1) ? x0 : x1;
-		int to = (x0 < x1) ? x1 : x0;
+}
 
-		for (int x = from; x < to; x++) {
-			int drawX = x;
-			int drawY = y0;
-			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				Point(Vector2(drawX, drawY), color);
-			}
+void PlotLineLow(Vector2 p1, Vector2 p2, Color col) {
+	float dx = p2.x - p1.x;
+	float dy = p2.y - p1.y;
+	int yi = 1;
+	if (dy < 0) {
+		yi = -1;
+		dy = -dy;
+	}
+	float D = (2 * dy) - dx;
+	float y = p1.y;
+
+	for (int x = p1.x; x < p2.x; x++) {
+		Plot(Vector2(x, y), col);
+		if (D > 0) {
+			y += yi;
+			D += (2 * (dy - dx));
+		}
+		else {
+
+			D += 2 * dy;
+		}
+	}
+}
+void PlotLineHigh(Vector2 p1, Vector2 p2, Color col) {
+	float dx = p2.x - p1.x;
+	float dy = p2.y - p1.y;
+	int xi = 1;
+	if (dx < 0) {
+		xi = -1;
+		dx = -dx;
+	}
+	float D = (2 * dx) - dy;
+	float x = p1.x;
+
+	for (int y = p1.y; y < p2.y; y++) {
+		Plot(Vector2(x, y), col);
+		if (D > 0) {
+			x += xi;
+			D += (2 * (dx - dy));
+		}
+		else
+		{
+			D += 2 * dx;
+		}
+	}
+}
+
+void PlotLine(Vector2 p1, Vector2 p2, Color col) {
+	if (abs(p2.y - p1.y) < abs(p2.x - p1.x)) {
+		if (p1.x > p2.x) {
+			PlotLineLow(p2, p1, col);
+		}
+		else {
+			PlotLineLow(p1, p2, col);
 		}
 	}
 	else {
-		int dx = x1 - x0;
-		int dy = y1 - y0;
-
-		int from = (x0 <= x1) ? x0 : x1;
-		int to = (x0 < x1) ? x1 : x0;
-
-		for (float x = from; x < to; x += 0.1f) {
-			float y = y1 + dy * (x - x1) / dx;
-
-			int drawX = x;
-			int drawY = y;
-			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				Point(Vector2(drawX, drawY), color);
-			}
+		if (p1.y > p2.y) {
+			PlotLineHigh(p2, p1, col);
+		}
+		else {
+			PlotLineHigh(p1, p2, col);
 		}
 	}
 }
 
-void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, Color color) {
-	int x0 = Mathf::Clamp(p1.x, 1, render_state.width - 1);
-	int x1 = Mathf::Clamp(p2.x, 1, render_state.width - 1);
+void DrawLine(Vector2 p1, Vector2 p2, Color col, int thickness = 1) {
+	bool steep = abs(p2.y - p1.y) > abs(p2.x - p1.x);
 
-	int y0 = Mathf::Clamp(p1.y, 1, render_state.height - 1);
-	int y1 = Mathf::Clamp(p2.y, 1, render_state.height - 1);
-
-	if (x0 == x1) {
-		//Straight up (no gradient)
-		int from = (y0 <= y1) ? y0 : y1;
-		int to = (y0 < y1) ? y1 : y0;
-
-		for (int y = from; y < to; y++) {
-			for (int x = -thickness; x < thickness; x++) {
-				Point(Vector2(x0 + x, y), color);
-			}
-		}
+	if (steep) {
+		p1 = Vector2::SwapPoints(p1.x, p1.y);
+		p2 = Vector2::SwapPoints(p2.x, p2.y);
 	}
-	else if (y0 == y1) {
-		//Horizontal line (m=0)
-		int from = (x0 <= x1) ? x0 : x1;
-		int to = (x0 < x1) ? x1 : x0;
 
-		for (int x = from; x < to; x++) {
-			for (int y = -thickness; y < thickness; y++) {
-				Point(Vector2(x, y0 + y), color);
+	if (p1.x > p2.x) {
+		Vector2 tempP1 = p1;
+		p1 = p2;
+		p2 = tempP1;
+	}
+
+	float dx = p2.x - p1.x;
+	float dy = p2.y - p1.y;
+	float gradient = dy / dx;
+
+	if (dx == 0) {
+		gradient = 1;
+	}
+
+	int xEnd = round(p1.x);
+	int yEnd = p1.y + gradient * (xEnd - p1.x);
+	float xGap = (p1.x + 0.5f) - floor(p1.x + 0.5f);
+
+	int xpxl1 = xEnd;
+	int ypxl1 = floor(yEnd);
+
+	if (steep) {
+		Plot(Vector2(ypxl1, xpxl1), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));
+		Plot(Vector2(ypxl1 + 1, xpxl1), Color(col.red, col.green, col.blue, (yEnd - floor(yEnd)) * xGap));
+	}
+	else {
+		Plot(Vector2(xpxl1, ypxl1), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));
+		Plot(Vector2(xpxl1, ypxl1 + 1), Color(col.red, col.green, col.blue, (yEnd - floor(yEnd)) * xGap));
+	}
+
+	int yInter = yEnd + gradient;
+
+	xEnd = round(p2.x);
+	yEnd = p2.y + gradient * (xEnd - p2.x);
+	xGap = (p2.x + 0.5f) - floor(p2.x + 0.5f);
+
+	int xpxl2 = xEnd;
+	int ypxl2 = floor(yEnd);
+
+	if (steep) {
+		Plot(Vector2(ypxl2, xpxl2), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));
+		Plot(Vector2(ypxl2 + 1, xpxl2), Color(col.red, col.green, col.blue, (yEnd - floor(yEnd)) * xGap));
+	}
+	else {
+		Plot(Vector2(xpxl2, ypxl2), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));
+		Plot(Vector2(xpxl2, ypxl2 + 1), Color(col.red, col.green, col.blue, (yEnd - floor(yEnd)) * xGap));
+	}
+
+	if (steep) {
+		for (int x = xpxl1; x < xpxl2; x++) {
+			Plot(Vector2(floor(yInter), x), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
+			for (int n = 0; n < thickness; n++) {
+				Plot(Vector2(floor(yInter) + n, x), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
 			}
+			yInter = yInter + gradient;
 		}
 	}
 	else {
-		int dx = x1 - x0;
-		int dy = y1 - y0;
-
-		int from = (x0 <= x1) ? x0 : x1;
-		int to = (x0 < x1) ? x1 : x0;
-
-		DrawLine(Vector2(x0, y0), Vector2(x1, y1), color);
-
-		int m = (dy/dx);
-		if(m != 0)
-			int c = (y1/m)-x1;
-
-		/*for (int x = from; x < to; x+=1) {
-			int y = y1 + dy * (x - x1) / dx;
-
-			unsigned int* pixel = (unsigned int*)render_state.memory + ((int)(x+(thickness/2)))+((y+(thickness/2)))*render_state.width;
-			for (float c = -thickness; c < thickness; c++) {
-				*pixel++ = color;
+		for (int x = xpxl1; x < xpxl2; x++) {
+			Plot(Vector2(x, floor(yInter)), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
+			for (int n = 0; n < thickness; n++) {
+				Plot(Vector2(x, floor(yInter) + n), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
 			}
-		}*/
-	}
-}
 
-void DrawRect(Vector2 position, Vector2 size, Color color) {
-	int x0 = Mathf::Clamp(position.x - size.x, 1, render_state.width-1);
-	int x1 = Mathf::Clamp(position.x + size.x, 1, render_state.width-1);
-
-	int y0 = Mathf::Clamp(position.y - size.y, 1, render_state.height-1);
-	int y1 = Mathf::Clamp(position.y + size.y, 1, render_state.height-1);
-
-	unsigned int pixelColor = Color::ColorToUINT(color);
-
-	for (int y = y0; y < y1; y++) {
-		unsigned int* pixel = (unsigned int*)render_state.memory + x0 + y * render_state.width;
-
-		for (int x = x0; x < x1; x++) {
-			*pixel++ = pixelColor;
+			yInter = yInter + gradient;
 		}
 	}
 }
 
-void DrawRotatedRect(Vector2 position, Vector2 size, float rotation, Color color) {
-	int x0 = position.x - size.x;
-	int x1 = position.x + size.x;
+void DrawRect(Vector2 position, Vector2 size, Color color, bool filled=false) {
+	int x0 = Mathf::Clamp(position.x - size.x, 1, render_state.width - 1);
+	int x1 = Mathf::Clamp(position.x + size.x, 1, render_state.width - 1);
 
-	int y0 = position.y - size.y;
-	int y1 = position.y + size.y;
+	int y0 = Mathf::Clamp(position.y - size.y, 1, render_state.height - 1);
+	int y1 = Mathf::Clamp(position.y + size.y, 1, render_state.height - 1);
 
-	int cx = position.x;
-	int cy = position.y;
-
-	Vector2 center = Vector2(cx, cy);
-
-	//Get distance from each point to center (cx,cy)
 	Vector2 TL = Vector2(x0, y0);
 	Vector2 TR = Vector2(x1, y0);
 	Vector2 BL = Vector2(x0, y1);
 	Vector2 BR = Vector2(x1, y1);
 
-	int tlD = Vector2::Distance(TL, center);
-	int trD = Vector2::Distance(TR, center);
-	int blD = Vector2::Distance(BL, center);
-	int brD = Vector2::Distance(BR, center);
+	unsigned int pixelColor = Color::ColorToUINT(color);
 
-	rotation *= (M_PI / 180);
+	DrawLine(TL, TR, color);
+	DrawLine(TR, BR, color);
+	DrawLine(BR, BL, color);
+	DrawLine(BL, TL, color);
 
-	//Rotate point by rotation
-	Vector2 newTL = Vector2::RotatePoint(center, TL, rotation);
-	Vector2 newTR = Vector2::RotatePoint(center, TR, rotation);
-	Vector2 newBR = Vector2::RotatePoint(center, BR, rotation);
-	Vector2 newBL = Vector2::RotatePoint(center, BL, rotation);
+	if (filled) {
+		for (int y = y0; y < y1; y++) {
+			unsigned int* pixel = (unsigned int*)render_state.memory + x0 + y * render_state.width;
 
-	//Redraw lines
-	DrawLine(newTL, newTR, color);
-	DrawLine(newTR, newBR, color);
-	DrawLine(newBR, newBL, color);
-	DrawLine(newBL, newTL, color);
-}
-
-void DrawPoly(std::list<Vector2> points, Color color) {
-	Vector2 prevPoint = points.front();
-	for (Vector2 p : points) {
-		DrawLine(prevPoint, p, color);
-		prevPoint = p;
+			for (int x = x0; x < x1; x++) {
+				*pixel++ = pixelColor;
+			}
+		}
 	}
 }
 
-void DrawPoly(std::list<Vector2> points,bool connect,Color color) {
-	Vector2 prevPoint = points.front();
+void DrawPoly(std::list<Vector2> points, Color color, int thickness = 1, bool connect = false) {
+	Vector2 prevpoint = points.front();
 	for (Vector2 p : points) {
-		DrawLine(prevPoint, p, color);
-		prevPoint = p;
+		DrawLine(prevpoint, p, color, thickness);
+		prevpoint = p;
 	}
-	DrawLine(points.front(), points.back(),color);
-}
-
-void DrawThickPoly(std::list<Vector2> points,float thickness, Color color) {
-	Vector2 prevPoint = points.front();
-	for (Vector2 p : points) {
-		DrawThickLine(prevPoint, p,thickness, color);
-		prevPoint = p;
+	if (connect) {
+		DrawLine(points.front(), points.back(), color, thickness);
 	}
 }
 
-void DrawThickPoly(std::list<Vector2> points,float thickness, bool connect, Color color) {
-	Vector2 prevPoint = points.front();
-	for (Vector2 p : points) {
-		DrawThickLine(prevPoint, p,thickness, color);
-		prevPoint = p;
-	}
-	DrawThickLine(points.front(), points.back(),thickness, color);
-}
-
-
-void DrawCircle(Vector2 position, float radius, bool filled, Color color) {
+void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, int edgeRadius = 1) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
-	
+
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
 		int y = sin(r) * radius;
@@ -243,59 +226,11 @@ void DrawCircle(Vector2 position, float radius, bool filled, Color color) {
 		int drawX = position.x + x;
 		int drawY = position.y + y;
 
-		DrawLine(Vector2(drawX, drawY), previousPoint, color);
+		DrawLine(Vector2(drawX, drawY), previousPoint, color,edgeRadius);
 		previousPoint = Vector2(drawX, drawY);
 	}
 
 	if (filled) {
+
 	}
 }
-
-void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, Color color) {
-	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
-
-	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
-		int x = cos(r) * radius;
-		int y = sin(r) * radius;
-
-		int drawX = position.x + x;
-		int drawY = position.y + y;
-
-		DrawThickLine(Vector2(drawX, drawY), previousPoint, edgeRadius, color);
-		previousPoint = Vector2(drawX, drawY);
-	}
-
-	if (filled) {
-	}
-}
-
-void DrawCircle(Vector2 position, float radius, int edgeRadius,Color  color) {
-	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
-
-	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
-		int x = cos(r) * radius;
-		int y = sin(r) * radius;
-
-		int drawX = position.x + x;
-		int drawY = position.y + y;
-
-		DrawThickLine(Vector2(drawX, drawY), previousPoint, edgeRadius, color);
-		previousPoint = Vector2(drawX, drawY);
-	}
-}
-
-void DrawCircle(Vector2 position, float radius, Color color) {
-	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
-
-	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
-		int x = cos(r) * radius;
-		int y = sin(r) * radius;
-
-		int drawX = position.x + x;
-		int drawY = position.y + y;
-
-		DrawLine(Vector2(drawX, drawY), previousPoint, color);
-		previousPoint = Vector2(drawX, drawY);
-	}
-}
-

@@ -63,3 +63,8 @@ Vector2 Vector2::RotatePoint(Vector2 center, Vector2 p, float angle) {
 	p.y = ynew + center.y;
 	return p;
 }
+
+Vector2 Vector2::SwapPoints(float x, float y) {
+	Vector2 swappedVector = Vector2(y, x);
+	return swappedVector;
+}

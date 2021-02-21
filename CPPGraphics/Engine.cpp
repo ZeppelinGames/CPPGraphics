@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include "Color.h"
 #include "Bounds.h"
 #include "Mathf.h"
 #include "Vector2.h"
@@ -16,8 +17,11 @@ int halfHeight;
 
 int fps=0;
 
+Vector2 referenceResolution = Vector2(800, 600);
+
 struct Render_State {
-	int width, height;
+	int width = referenceResolution.x, height = referenceResolution.y;
+	Bounds screenBounds;
 	void* memory;
 
 	BITMAPINFO bitmap_info;
@@ -45,6 +49,8 @@ LRESULT CALLBACK Window_Callback(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wPa
 
 			halfWidth = render_state.width / 2;
 			halfHeight = render_state.height / 2;
+
+			render_state.screenBounds = Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1));
 
 			int bufferSize = render_state.width * render_state.height * sizeof(unsigned int);
 
@@ -92,36 +98,38 @@ std::wstring conv = L"0";
 
 void LineTest() {
 	//Normal Line
-	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White(), true); //Horizontal
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Horizontal
 	DrawLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White()); //Vertical
 	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White()); //Diagonal (upward)
 	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
 
+	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Horizontal
+	PlotLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White()); //Vertical
+	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White()); //Diagonal (upward)
+	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
+
 	//Thick line (thickness 5)
-	DrawThickLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), 5, Color::White()); //Horizontal 
-	DrawThickLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), 5, Color::White()); //Vertical
-	DrawThickLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 3), 5, Color::White()); //Diagonal (upward)
-	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
+	DrawLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), Color::White(), 5); //Horizontal 
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Color::White(), 5); //Vertical
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 3), Color::White(), 5); //Diagonal (upward)
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 2), Color::White(), 5); //Diagonal (downward)
 }
 
-float angle = 0;
 void RectTest() {
 	//Normal Rectangle
 	DrawRect(Vector2((render_state.width / 4) * 2, halfHeight), Vector2(100, 100), Color::White());
 
-	//Rotated Rectangle
-	DrawRotatedRect(Vector2((render_state.width / 4) * 3, halfHeight), Vector2(100, 100), angle, Color::White());
-
-	angle += averageFrameTimeMilliseconds/60;
+	//Filled Rectangle
+	DrawRect(Vector2((render_state.width / 4) * 3, halfHeight), Vector2(100, 100), Color::White(),true);
 }
 
 void CircleTest() {
 	//Normal circle
 	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White());
 	//Thick circle
-	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, 5, Color::White());
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White(),false,5);
 	//Filled circle
-	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, true, Color::White());
+	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White(),true);
 }
 
 void PolyTest() {
@@ -141,16 +149,16 @@ void PolyTest() {
 			Vector2(1500,400),
 			Vector2(1700,800),
 			Vector2(1400,700)
-		}, true, Color::White()
+		}, Color::White(),1,true
 	);
 
-	DrawThickPoly(
+	DrawPoly(
 		{
 			Vector2(800,600),
 			Vector2(900,700),
 			Vector2(600,200),
 			Vector2(1000,300)
-		}, 10, Color::White()
+		}, Color::White(),5,true
 	);
 }
 
@@ -165,7 +173,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	RegisterClass(&window_class);
 
 	//Create window
-	HWND window = CreateWindow(window_class.lpszClassName, L"Main Window", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1920, 1080, 0, 0, hInstance, 0);
+	HWND window = CreateWindow(window_class.lpszClassName, L"Main Window", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, referenceResolution.x, referenceResolution.y, 0, 0, hInstance, 0);
 	HDC hdc = GetDC(window);
 
 	//Get monitor
@@ -187,13 +195,14 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		}
 
 		//Simulate
-		ClearScreen(0x000000);
+		ClearScreen(Color::Black());
 
 		//Run Tests
 		LineTest();
-		RectTest();
+		//RectTest();
 		//CircleTest();
 		//PolyTest();
+
 
 		//Render 
 		StretchDIBits(hdc, 0, 0, render_state.width, render_state.height, 0, 0, render_state.width, render_state.height, render_state.memory, &render_state.bitmap_info, DIB_RGB_COLORS, SRCCOPY);

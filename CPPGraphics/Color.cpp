@@ -1,6 +1,7 @@
 #include "Color.h"
 #include <cstdint>
 #include "Mathf.h"
+#include <math.h>
 
 Color::Color() {
 	red = 255;
@@ -137,9 +138,8 @@ Color Color:: operator/(float i) {
 
 #pragma endregion
 
-
 Color Color::UINTToColor(unsigned int c) {
-	return Color(c >> 16, c >> 8, c);
+	return Color(c >> 16,c >> 8,c);
 }
 
 unsigned char Color::GetRed(unsigned int c) {
