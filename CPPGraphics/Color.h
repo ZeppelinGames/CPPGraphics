@@ -21,14 +21,14 @@ public:
 	Color operator* (float);
 	Color operator/ (float);
 
-	static Color White();
-	static Color Black();
-	static Color Red();
-	static Color Green();
-	static Color Blue();
-	static Color Yellow();
-	static Color Orange();
-	static Color Purple();
+	static Color White;
+	static Color Black;
+	static Color Red;
+	static Color Green;
+	static Color Blue;
+	static Color Yellow;
+	static Color Orange;
+	static Color Purple;
 
 	static Color UINTToColor(unsigned int);
 	static unsigned int ColorToUINT(Color);

@@ -25,30 +25,14 @@ Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 }
 
 #pragma region Preset Colors
-Color Color::White() {
-	return Color(255, 255, 255);
-}
-Color Color::Black() {
-	return Color(0, 0, 0);
-}
-Color Color::Red() {
-	return Color(255, 0, 0);
-}
-Color Color::Green() {
-	return Color(0, 255, 0);
-}
-Color Color::Blue() {
-	return Color(0, 0, 255);
-}
-Color Color::Yellow() {
-	return Color(255, 255, 0);
-}
-Color Color::Orange() {
-	return Color(255, 69, 0);
-}
-Color Color::Purple() {
-	return Color(255, 0, 255);
-}
+Color Color::White = Color(255, 255, 255);
+Color Color::Black = Color(0, 0, 0);
+Color Color::Red = Color(255, 0, 0);
+Color Color::Green =Color(0, 255, 0);
+Color Color::Blue= Color(0, 0, 255);
+Color Color::Yellow =Color(255, 255, 0);
+Color Color::Orange =  Color(255, 69, 0);
+Color Color::Purple = Color(255, 0, 255);
 #pragma endregion
 
 #pragma region Color operations with color

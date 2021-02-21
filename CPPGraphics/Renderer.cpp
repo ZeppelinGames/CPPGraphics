@@ -217,7 +217,7 @@ void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, i
 	Vector2 startPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 	Vector2 previousPoint = startPoint;
 
-	for (float r = 0; r < (M_PI*2); r += (M_PI / radius)) {
+	for (float r = 0; r < (M_PI*2); r += ((M_PI*2) / sides)) {
 		int x = cos(r) * radius;
 		int y = sin(r) * radius;
 

@@ -100,33 +100,33 @@ std::wstring conv = L"0";
 void LineTest() {
 	//Normal Line
 
-	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Horizontal
-	DrawLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White()); //Vertical
-	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White()); //Diagonal (upward)
-	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White); //Horizontal
+	DrawLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White); //Vertical
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White); //Diagonal (upward)
+	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White); //Diagonal (downward)
 
 	//Thick line (thickness 5)
-	DrawLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), Color::White(), 5); //Horizontal 
-	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Color::White(), 5); //Vertical
-	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 3), Color::White(), 5); //Diagonal (upward)
-	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 2), Color::White(), 5); //Diagonal (downward)
+	DrawLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), Color::White, 5); //Horizontal 
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Color::White, 5); //Vertical
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 3), Color::White, 5); //Diagonal (upward)
+	DrawLine(Vector2((render_state.width / 4) * 3, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 3.5f, (render_state.height / 4) * 2), Color::White, 5); //Diagonal (downward)
 }
 
 void RectTest() {
 	//Normal Rectangle
-	DrawRect(Vector2((render_state.width / 4) * 2, halfHeight), Vector2(100, 100), Color::White());
+	DrawRect(Vector2((render_state.width / 4) * 2, halfHeight), Vector2(100, 100), Color::White);
 
 	//Filled Rectangle
-	DrawRect(Vector2((render_state.width / 4) * 3, halfHeight), Vector2(100, 100), Color::White(),true);
+	DrawRect(Vector2((render_state.width / 4) * 3, halfHeight), Vector2(100, 100), Color::White,true);
 }
 
 void CircleTest() {
 	//Normal circle
-	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White());
+	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White);
 	//Thick circle
-	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White(),false,5,10);
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White,false,5,100);
 	//Filled circle
-	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White(),true);
+	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White,true);
 }
 
 void PolyTest() {
@@ -137,7 +137,7 @@ void PolyTest() {
 			Vector2(200,100),
 			Vector2(400,800),
 			Vector2(500,300)
-		}, Color::White()
+		}, Color::White
 	);
 
 	DrawPoly(
@@ -146,7 +146,7 @@ void PolyTest() {
 			Vector2(1500,400),
 			Vector2(1700,800),
 			Vector2(1400,700)
-		}, Color::White(),1,true
+		}, Color::White,1,true
 	);
 
 	DrawPoly(
@@ -155,7 +155,7 @@ void PolyTest() {
 			Vector2(900,700),
 			Vector2(600,200),
 			Vector2(1000,300)
-		}, Color::White(),5,true
+		}, Color::White,5,true
 	);
 }
 
@@ -192,7 +192,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		}
 
 		//Simulate
-		ClearScreen(Color::Black());
+		ClearScreen(Color::Black);
 
 		//Run Tests
 		//LineTest();
