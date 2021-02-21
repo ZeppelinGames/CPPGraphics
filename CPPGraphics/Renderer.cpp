@@ -1,7 +1,4 @@
 #include <math.h>
-#include <list>
-#include <iostream>
-#include "Color.h"
 
 Color GetColor(Vector2 pos) {
 	unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
@@ -217,9 +214,10 @@ void DrawPoly(std::list<Vector2> points, Color color, int lineWidth = 1, bool co
 }
 
 void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, int edgeRadius = 1, int sides=360) {
-	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
+	Vector2 startPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
+	Vector2 previousPoint = startPoint;
 
-	for (float r = 0; r < (M_PI*2); r += (M_PI / sides)) {
+	for (float r = 0; r < (M_PI*2); r += (M_PI / radius)) {
 		int x = cos(r) * radius;
 		int y = sin(r) * radius;
 
@@ -229,6 +227,7 @@ void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, i
 		DrawLine(Vector2(drawX, drawY), previousPoint, color,edgeRadius);
 		previousPoint = Vector2(drawX, drawY);
 	}
+	DrawLine(previousPoint, startPoint, color, edgeRadius);
 
 	if (filled) {
 

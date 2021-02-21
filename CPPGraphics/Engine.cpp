@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <list>
 #include "Color.h"
 #include "Bounds.h"
 #include "Mathf.h"
@@ -17,7 +18,7 @@ int halfHeight;
 
 int fps=0;
 
-Vector2 referenceResolution = Vector2(800, 600);
+Vector2 referenceResolution = Vector2(1920, 1080);
 
 struct Render_State {
 	int width = referenceResolution.x, height = referenceResolution.y;
