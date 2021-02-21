@@ -123,7 +123,7 @@ void CircleTest() {
 	//Normal circle
 	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White());
 	//Thick circle
-	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White(),false,5);
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White(),false,5,10);
 	//Filled circle
 	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White(),true);
 }
@@ -194,9 +194,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		ClearScreen(Color::Black());
 
 		//Run Tests
-		LineTest();
+		//LineTest();
 		//RectTest();
-		//CircleTest();
+		CircleTest();
 		//PolyTest();
 
 

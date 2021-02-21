@@ -98,7 +98,7 @@ void PlotLine(Vector2 p1, Vector2 p2, Color col) {
 	}
 }
 
-void DrawLine(Vector2 p1, Vector2 p2, Color col, int thickness = 1) {
+void DrawLine(Vector2 p1, Vector2 p2, Color col, int lineWidth = 1) {
 	bool steep = abs(p2.y - p1.y) > abs(p2.x - p1.x);
 
 	if (steep) {
@@ -156,18 +156,18 @@ void DrawLine(Vector2 p1, Vector2 p2, Color col, int thickness = 1) {
 
 	if (steep) {
 		for (int x = xpxl1; x < xpxl2; x++) {
-			Plot(Vector2(floor(yInter), x), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
-			for (int n = 0; n < thickness; n++) {
-				Plot(Vector2(floor(yInter) + n, x), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
+			Plot(Vector2(round(yInter), x), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
+			for (int n = -floor(lineWidth / 2); n < ceil(lineWidth / 2); n++) {
+				Plot(Vector2(round(yInter) + n, x), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
 			}
 			yInter = yInter + gradient;
 		}
 	}
 	else {
 		for (int x = xpxl1; x < xpxl2; x++) {
-			Plot(Vector2(x, floor(yInter)), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
-			for (int n = 0; n < thickness; n++) {
-				Plot(Vector2(x, floor(yInter) + n), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
+			Plot(Vector2(x, round(yInter)), Color(col.red, col.green, col.blue, (1 - (yInter - floor(yInter)))));
+			for (int n = -floor(lineWidth/2); n < ceil(lineWidth/2); n++) {
+				Plot(Vector2(x, round(yInter) + n), Color(col.red, col.green, col.blue, (yInter - floor(yInter))));
 			}
 
 			yInter = yInter + gradient;
@@ -205,21 +205,21 @@ void DrawRect(Vector2 position, Vector2 size, Color color, bool filled=false) {
 	}
 }
 
-void DrawPoly(std::list<Vector2> points, Color color, int thickness = 1, bool connect = false) {
+void DrawPoly(std::list<Vector2> points, Color color, int lineWidth = 1, bool connect = false) {
 	Vector2 prevpoint = points.front();
 	for (Vector2 p : points) {
-		DrawLine(prevpoint, p, color, thickness);
+		DrawLine(prevpoint, p, color, lineWidth);
 		prevpoint = p;
 	}
 	if (connect) {
-		DrawLine(points.front(), points.back(), color, thickness);
+		DrawLine(points.front(), points.back(), color, lineWidth);
 	}
 }
 
-void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, int edgeRadius = 1) {
+void DrawCircle(Vector2 position, float radius, Color color,bool filled=false, int edgeRadius = 1, int sides=360) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
-	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
+	for (float r = 0; r < (M_PI*2); r += (M_PI / sides)) {
 		int x = cos(r) * radius;
 		int y = sin(r) * radius;
 
