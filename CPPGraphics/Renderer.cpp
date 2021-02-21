@@ -1,5 +1,7 @@
 #include <math.h>
 #include <list>
+#include <iostream>
+#include "Color.h"
 
 void RenderBackground() {
 	unsigned int* pixel = (unsigned int*)render_state.memory;
@@ -19,12 +21,22 @@ void ClearScreen(unsigned int col) {
 	}
 }
 
-void Point(Vector2 pos, unsigned int color) {
+Color GetColor(Vector2 pos) {
 	unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
-	*pixel++ = color;
+	return Color::UINTToColor(*pixel);
 }
 
-void DrawLine(Vector2 p1, Vector2 p2, unsigned int color) {
+void Point(Vector2 pos, Color color) {
+	unsigned int* pixel = (unsigned int*)render_state.memory + (int)pos.x + (int)pos.y * render_state.width;
+
+	Color bgColor = GetColor(pos);
+	Color alphaCol = (color + bgColor) * color.alpha;
+
+	unsigned int alphaColor = Color::ColorToUINT(alphaCol);
+	*pixel++ = alphaColor;
+}
+
+void DrawLine(Vector2 p1, Vector2 p2, Color color, bool antialias = false) {
 	int x0 = p1.x;
 	int x1 = p2.x;
 
@@ -41,8 +53,7 @@ void DrawLine(Vector2 p1, Vector2 p2, unsigned int color) {
 			int drawX = x0;
 			int drawY = y;
 			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				unsigned int* pixel = (unsigned int*)render_state.memory + drawX + drawY * render_state.width;
-				*pixel++ = color;
+				Point(Vector2(drawX, drawY), color);
 			}
 		}
 	}
@@ -55,8 +66,7 @@ void DrawLine(Vector2 p1, Vector2 p2, unsigned int color) {
 			int drawX = x;
 			int drawY = y0;
 			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				unsigned int* pixel = (unsigned int*)render_state.memory + drawX + drawY * render_state.width;
-				*pixel++ = color;
+				Point(Vector2(drawX, drawY), color);
 			}
 		}
 	}
@@ -67,20 +77,19 @@ void DrawLine(Vector2 p1, Vector2 p2, unsigned int color) {
 		int from = (x0 <= x1) ? x0 : x1;
 		int to = (x0 < x1) ? x1 : x0;
 
-		for (float x = from; x < to; x+=0.1f) {
+		for (float x = from; x < to; x += 0.1f) {
 			float y = y1 + dy * (x - x1) / dx;
 
 			int drawX = x;
 			int drawY = y;
 			if (Bounds::pointInBounds(Vector2(drawX, drawY), Bounds(Vector2(halfWidth, halfHeight), Vector2(halfWidth - 1, halfHeight - 1)))) {
-				unsigned int* pixel = (unsigned int*)render_state.memory + drawX + drawY * render_state.width;
-				*pixel++ = color;
+				Point(Vector2(drawX, drawY), color);
 			}
 		}
 	}
 }
 
-void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
+void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, Color color) {
 	int x0 = Mathf::Clamp(p1.x, 1, render_state.width - 1);
 	int x1 = Mathf::Clamp(p2.x, 1, render_state.width - 1);
 
@@ -94,8 +103,7 @@ void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
 
 		for (int y = from; y < to; y++) {
 			for (int x = -thickness; x < thickness; x++) {
-				unsigned int* pixel = (unsigned int*)render_state.memory + (x0 + x) + y * render_state.width;
-				*pixel++ = color;
+				Point(Vector2(x0 + x, y), color);
 			}
 		}
 	}
@@ -106,8 +114,7 @@ void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
 
 		for (int x = from; x < to; x++) {
 			for (int y = -thickness; y < thickness; y++) {
-				unsigned int* pixel = (unsigned int*)render_state.memory + x + (y0 + y) * render_state.width;
-				*pixel++ = color;
+				Point(Vector2(x, y0 + y), color);
 			}
 		}
 	}
@@ -121,11 +128,8 @@ void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
 		DrawLine(Vector2(x0, y0), Vector2(x1, y1), color);
 
 		int m = (dy/dx);
-		int c = (y1/m)-x1;
-
-		for (int n = -(thickness / 2); n < thickness / 2; n++) {
-			DrawLine()
-		}
+		if(m != 0)
+			int c = (y1/m)-x1;
 
 		/*for (int x = from; x < to; x+=1) {
 			int y = y1 + dy * (x - x1) / dx;
@@ -138,23 +142,25 @@ void DrawThickLine(Vector2 p1, Vector2 p2,int thickness, unsigned int color) {
 	}
 }
 
-void DrawRect(Vector2 position, Vector2 size, unsigned int color) {
+void DrawRect(Vector2 position, Vector2 size, Color color) {
 	int x0 = Mathf::Clamp(position.x - size.x, 1, render_state.width-1);
 	int x1 = Mathf::Clamp(position.x + size.x, 1, render_state.width-1);
 
 	int y0 = Mathf::Clamp(position.y - size.y, 1, render_state.height-1);
 	int y1 = Mathf::Clamp(position.y + size.y, 1, render_state.height-1);
 
+	unsigned int pixelColor = Color::ColorToUINT(color);
+
 	for (int y = y0; y < y1; y++) {
 		unsigned int* pixel = (unsigned int*)render_state.memory + x0 + y * render_state.width;
 
 		for (int x = x0; x < x1; x++) {
-			*pixel++ = color;
+			*pixel++ = pixelColor;
 		}
 	}
 }
 
-void DrawRotatedRect(Vector2 position, Vector2 size, float rotation, unsigned int color) {
+void DrawRotatedRect(Vector2 position, Vector2 size, float rotation, Color color) {
 	int x0 = position.x - size.x;
 	int x1 = position.x + size.x;
 
@@ -192,7 +198,7 @@ void DrawRotatedRect(Vector2 position, Vector2 size, float rotation, unsigned in
 	DrawLine(newBL, newTL, color);
 }
 
-void DrawPoly(std::list<Vector2> points, unsigned int color) {
+void DrawPoly(std::list<Vector2> points, Color color) {
 	Vector2 prevPoint = points.front();
 	for (Vector2 p : points) {
 		DrawLine(prevPoint, p, color);
@@ -200,7 +206,7 @@ void DrawPoly(std::list<Vector2> points, unsigned int color) {
 	}
 }
 
-void DrawPoly(std::list<Vector2> points,bool connect, unsigned int color) {
+void DrawPoly(std::list<Vector2> points,bool connect,Color color) {
 	Vector2 prevPoint = points.front();
 	for (Vector2 p : points) {
 		DrawLine(prevPoint, p, color);
@@ -209,7 +215,7 @@ void DrawPoly(std::list<Vector2> points,bool connect, unsigned int color) {
 	DrawLine(points.front(), points.back(),color);
 }
 
-void DrawThickPoly(std::list<Vector2> points,float thickness, unsigned int color) {
+void DrawThickPoly(std::list<Vector2> points,float thickness, Color color) {
 	Vector2 prevPoint = points.front();
 	for (Vector2 p : points) {
 		DrawThickLine(prevPoint, p,thickness, color);
@@ -217,7 +223,7 @@ void DrawThickPoly(std::list<Vector2> points,float thickness, unsigned int color
 	}
 }
 
-void DrawThickPoly(std::list<Vector2> points,float thickness, bool connect, unsigned int color) {
+void DrawThickPoly(std::list<Vector2> points,float thickness, bool connect, Color color) {
 	Vector2 prevPoint = points.front();
 	for (Vector2 p : points) {
 		DrawThickLine(prevPoint, p,thickness, color);
@@ -227,7 +233,7 @@ void DrawThickPoly(std::list<Vector2> points,float thickness, bool connect, unsi
 }
 
 
-void DrawCircle(Vector2 position, float radius, bool filled, unsigned int color) {
+void DrawCircle(Vector2 position, float radius, bool filled, Color color) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 	
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
@@ -245,7 +251,7 @@ void DrawCircle(Vector2 position, float radius, bool filled, unsigned int color)
 	}
 }
 
-void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, unsigned int color) {
+void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, Color color) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
@@ -263,7 +269,7 @@ void DrawCircle(Vector2 position, float radius, int edgeRadius, bool filled, uns
 	}
 }
 
-void DrawCircle(Vector2 position, float radius, int edgeRadius, unsigned int color) {
+void DrawCircle(Vector2 position, float radius, int edgeRadius,Color  color) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
@@ -278,7 +284,7 @@ void DrawCircle(Vector2 position, float radius, int edgeRadius, unsigned int col
 	}
 }
 
-void DrawCircle(Vector2 position, float radius, unsigned int color) {
+void DrawCircle(Vector2 position, float radius, Color color) {
 	Vector2 previousPoint = Vector2(position.x + cos(0) * radius, position.y + sin(0) * radius);
 
 	for (float r = 0; r < (M_PI * 2); r += (M_PI / radius)) {
