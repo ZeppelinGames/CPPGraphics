@@ -124,12 +124,21 @@ void CircleTest() {
 	//Normal circle
 	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White);
 	//Thick circle
-	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White,false,5,100);
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White,false,5);
 	//Filled circle
 	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White,true);
 }
 
 void PolyTest() {
+	//Normal triangle
+	DrawCircle(Vector2((render_state.width / 5) * 2, halfHeight), 150, Color::White,false,1,3);
+	//Thick hexagon
+	DrawCircle(Vector2((render_state.width / 5) * 3, halfHeight), 150, Color::White, false, 5,6);
+	//Filled octagon
+	DrawCircle(Vector2((render_state.width / 5) * 4, halfHeight), 150, Color::White, true,1, 8);
+}
+
+void CustomPolyTest() {
 	DrawPoly(
 		{
 			Vector2(500,900),
@@ -197,8 +206,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		//Run Tests
 		//LineTest();
 		//RectTest();
-		CircleTest();
-		//PolyTest();
+		//CircleTest();
+		PolyTest();
+		//CustomPolyTest();
 
 
 		//Render 

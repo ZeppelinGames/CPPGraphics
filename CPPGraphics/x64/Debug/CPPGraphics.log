@@ -92,5 +92,11 @@ D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(127,51
 D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(127,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(129,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(129,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(173,16): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(134,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(134,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(136,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(136,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(138,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(138,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Applications\Visual Studio\Projects\CPPGraphics\CPPGraphics\Engine.cpp(182,16): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   CPPGraphics.vcxproj -> D:\Applications\Visual Studio\Projects\CPPGraphics\x64\Debug\CPPGraphics.exe
