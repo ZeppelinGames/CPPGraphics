@@ -120,12 +120,12 @@ void DrawLine(Vector2 p1, Vector2 p2, Color col, int thickness = 1) {
 		gradient = 1;
 	}
 
-	int xEnd = round(p1.x);
-	int yEnd = p1.y + gradient * (xEnd - p1.x);
+	float xEnd = round(p1.x);
+	float yEnd = p1.y + gradient * (xEnd - p1.x);
 	float xGap = (p1.x + 0.5f) - floor(p1.x + 0.5f);
 
-	int xpxl1 = xEnd;
-	int ypxl1 = floor(yEnd);
+	float xpxl1 = xEnd;
+	float ypxl1 = floor(yEnd);
 
 	if (steep) {
 		Plot(Vector2(ypxl1, xpxl1), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));
@@ -136,14 +136,14 @@ void DrawLine(Vector2 p1, Vector2 p2, Color col, int thickness = 1) {
 		Plot(Vector2(xpxl1, ypxl1 + 1), Color(col.red, col.green, col.blue, (yEnd - floor(yEnd)) * xGap));
 	}
 
-	int yInter = yEnd + gradient;
+	float yInter = yEnd + gradient;
 
 	xEnd = round(p2.x);
 	yEnd = p2.y + gradient * (xEnd - p2.x);
 	xGap = (p2.x + 0.5f) - floor(p2.x + 0.5f);
 
-	int xpxl2 = xEnd;
-	int ypxl2 = floor(yEnd);
+	float xpxl2 = xEnd;
+	float ypxl2 = floor(yEnd);
 
 	if (steep) {
 		Plot(Vector2(ypxl2, xpxl2), Color(col.red, col.green, col.blue, (1 - (yEnd - floor(yEnd))) * xGap));

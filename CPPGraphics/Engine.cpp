@@ -98,15 +98,11 @@ std::wstring conv = L"0";
 
 void LineTest() {
 	//Normal Line
+
 	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Horizontal
 	DrawLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White()); //Vertical
 	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White()); //Diagonal (upward)
 	DrawLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
-
-	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Horizontal
-	PlotLine(Vector2(halfWidth, (render_state.height / 4) * 2), Vector2(halfWidth, (render_state.height / 4) * 3), Color::White()); //Vertical
-	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 2), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 3), Color::White()); //Diagonal (upward)
-	PlotLine(Vector2((render_state.width / 4) * 2, (render_state.height / 4) * 3), Vector2((render_state.width / 4) * 2.5f, (render_state.height / 4) * 2), Color::White()); //Diagonal (downward)
 
 	//Thick line (thickness 5)
 	DrawLine(Vector2((render_state.width / 4) * 3, halfHeight), Vector2((render_state.width / 4) * 3.5f, halfHeight), Color::White(), 5); //Horizontal 
